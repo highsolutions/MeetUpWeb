@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\MeetUp;
-use App\User;
+use App\Http\Requests\MeetUp\SignUpRequest;
+use App\Models\MeetUp;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class MeetUpController extends Controller
 {
+    protected $userRepository;
+
     /**
      * Display a listing of the resource.
      *
@@ -76,38 +79,6 @@ class MeetUpController extends Controller
     public function destroy(MeetUp $meetUp)
     {
         $meetUp->delete();
-
-        return response()->json();
-    }
-
-    public function signup($id, Request $rq)
-    {
-        $e = MeetUp::find($id);
-        if ($e === null) {
-            abort(404);
-        }
-
-        $this->validate($rq, [
-            'user_id' => 'required|int',
-            'quantity' => 'required|int',
-        ]);
-
-        $user = User::find($rq->get('user_id'));
-
-        if ($user === null) {
-            abort(404);
-        }
-
-        $s = 0;
-        foreach ($e->users as $user) {
-            $s += $user->pivot->quantity;
-        }
-
-        if ($s + $rq->get('quantity') > $e->capacity) {
-            abort(403);
-        }
-
-        $user->meetUps()->attach($e->id, ['quantity' => $rq->get('quantity')]);
 
         return response()->json();
     }

@@ -11,4 +11,4 @@
 |
 */
 
-Route::post('/{meetUpId}/signup', 'MeetUpController@signup')->name('meetup.signup');
+Route::post('/{meetUpId}/signup', 'UserMeetUpController@create')->name('meetup.signup');
