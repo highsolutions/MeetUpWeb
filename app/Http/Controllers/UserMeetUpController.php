@@ -4,19 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MeetUp\SignUpRequest;
 use App\Models\MeetUp;
+use App\Repositories\MeetUpRepository;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserMeetUpController
 {
-    public function create(MeetUp $meetUp, SignUpRequest $request)
+    public function __construct(MeetUpRepository $meetUpRepository)
     {
-        $user = $this->userRepository->findOrFail($request->get('user_id'));
+        $this->meetUpRepository = $meetUpRepository;
+    }
 
-        if ($meetUp->sumSoldTickets + $request->get('quantity') > $meetUp->capacity) {
-            throw new \Exception('Too many tickets');
-        }
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param \App\Models\MeetUp $meetUp
+     * @param \App\Http\Requests\MeetUp\SignUpRequest $request
+     * @return \Illuminate\Http\Response|Exception
+     */
 
-        $user->meetUps()->attach($meetUp->id, ['quantity' => $request->get('quantity')]);
+    public function store(MeetUp $meetUp, SignUpRequest $request)
+    {
+        $quantity = $request->get('quantity');
 
-        return response()->json();
+        $this->meetUpRepository->canUserEnroll($meetUp, $quantity);
+
+        $this->meetUpRepository->enrollUser(auth()->user(), 
+                                            $quantity
+                                        );
+
+        return response()->json([
+                                    'status' => true,
+                                    'message' => 'Well done!',
+                                ], Response::HTTP_CREATED);
     }
 }

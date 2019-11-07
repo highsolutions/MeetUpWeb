@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MeetUp\SignUpRequest;
 use App\Models\MeetUp;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class MeetUpController extends Controller
 {
-    protected $userRepository;
 
     /**
      * Display a listing of the resource.
